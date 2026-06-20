@@ -52,13 +52,14 @@ fi
 # dari history sebelumnya. Tekan tombol -> (arrow kanan) atau End buat accept suggestion.
 
 echo ""
-echo "=== 6. Tambah neofetch otomatis muncul saat login shell ==="
+echo "=== 6. Tambah clear screen + neofetch otomatis saat login shell ==="
 if ! grep -q "neofetch" "$ZSHRC"; then
     cat >> "$ZSHRC" << 'EOF'
 
-# Tampilkan neofetch setiap login shell interaktif
-if [ -t 1 ] && command -v neofetch >/dev/null 2>&1; then
-    neofetch
+# Clear screen + tampilkan neofetch setiap login shell interaktif
+if [ -t 1 ]; then
+    clear
+    command -v neofetch >/dev/null 2>&1 && neofetch
 fi
 EOF
 fi
