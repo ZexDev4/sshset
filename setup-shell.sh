@@ -31,16 +31,28 @@ else
 fi
 
 echo ""
-echo "=== 4. Tambah plugin berguna (git, sudo, command-not-found) ==="
-if grep -q '^plugins=' "$ZSHRC"; then
-    sed -i 's/^plugins=.*/plugins=(git sudo command-not-found)/' "$ZSHRC"
+echo "=== 4. Install plugin zsh-autosuggestions ==="
+ZSH_CUSTOM="$USER_HOME/.oh-my-zsh/custom"
+PLUGIN_DIR="$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+if [ -d "$PLUGIN_DIR" ]; then
+    echo "zsh-autosuggestions sudah terinstall, skip."
 else
-    echo 'plugins=(git sudo command-not-found)' >> "$ZSHRC"
+    git clone https://github.com/zsh-users/zsh-autosuggestions "$PLUGIN_DIR"
 fi
-# plugin "sudo" dari Oh My Zsh: tekan ESC dua kali buat nambahin "sudo " di depan command terakhir
 
 echo ""
-echo "=== 5. Tambah neofetch otomatis muncul saat login shell ==="
+echo "=== 5. Tambah plugin berguna (git, sudo, command-not-found, zsh-autosuggestions) ==="
+if grep -q '^plugins=' "$ZSHRC"; then
+    sed -i 's/^plugins=.*/plugins=(git sudo command-not-found zsh-autosuggestions)/' "$ZSHRC"
+else
+    echo 'plugins=(git sudo command-not-found zsh-autosuggestions)' >> "$ZSHRC"
+fi
+# plugin "sudo" dari Oh My Zsh: tekan ESC dua kali buat nambahin "sudo " di depan command terakhir
+# plugin "zsh-autosuggestions": saat ketik command, akan muncul suggestion abu-abu
+# dari history sebelumnya. Tekan tombol -> (arrow kanan) atau End buat accept suggestion.
+
+echo ""
+echo "=== 6. Tambah neofetch otomatis muncul saat login shell ==="
 if ! grep -q "neofetch" "$ZSHRC"; then
     cat >> "$ZSHRC" << 'EOF'
 
@@ -52,7 +64,7 @@ EOF
 fi
 
 echo ""
-echo "=== 6. Styling prompt sudo (highlight command jadi merah saat pakai sudo) ==="
+echo "=== 7. Styling prompt sudo (highlight command jadi merah saat pakai sudo) ==="
 cat >> "$ZSHRC" << 'EOF'
 
 # --- Styling tambahan: highlight saat menjalankan sudo ---
@@ -63,7 +75,7 @@ sudo() {
 EOF
 
 echo ""
-echo "=== 7. Set zsh sebagai default shell ==="
+echo "=== 8. Set zsh sebagai default shell ==="
 ZSH_PATH=$(command -v zsh)
 if [ -n "$ZSH_PATH" ]; then
     chsh -s "$ZSH_PATH" "$(whoami)" 2>/dev/null
