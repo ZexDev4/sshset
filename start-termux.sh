@@ -72,10 +72,16 @@ for i in $(seq 1 10); do
 done
 
 echo ""
-echo "=== Connect SSH ==="
-# Bersihkan host key lama untuk localhost:port ini, karena server sering
-# regenerate SSH host key tiap restart (umum di container/Railway)
+echo "Tunnel siap."
+
+# Bersihkan host key lama untuk localhost:port ini secara otomatis,
+# karena server sering regenerate SSH host key tiap restart (umum di container/Railway)
 ssh-keygen -R "[localhost]:$LOCAL_PORT" >/dev/null 2>&1
 
-echo "Menjalankan: ssh $SSH_USER@localhost -p $LOCAL_PORT"
-ssh -o StrictHostKeyChecking=no "$SSH_USER@localhost" -p $LOCAL_PORT
+echo ""
+echo "=== Tunnel siap ==="
+echo "Buka SESI TERMUX BARU (swipe dari kiri -> New session), lalu jalankan:"
+echo ""
+echo "  ssh -o StrictHostKeyChecking=no $SSH_USER@localhost -p $LOCAL_PORT"
+echo ""
+echo "Tunnel tetap berjalan di background. Jangan tutup sesi ini."
