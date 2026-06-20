@@ -50,9 +50,20 @@ fi
 # Bersihkan kalau ada "https://" nyangkut
 HOSTNAME_CLEAN=$(echo "$HOSTNAME_ARG" | sed 's#https://##' | sed 's#/$##')
 
-echo "=== Mematikan tunnel lama (kalau ada) di port $LOCAL_PORT ==="
-pkill -f "cloudflared access tcp" 2>/dev/null
-sleep 1
+echo "=== Cek tunnel cloudflared lama ==="
+if pgrep -f "cloudflared access tcp" >/dev/null 2>&1; then
+    echo "Ditemukan proses cloudflared lama yang masih jalan, mematikan..."
+    pkill -f "cloudflared access tcp" 2>/dev/null
+    sleep 1
+    # Pastikan benar-benar mati, kalau masih ada paksa kill
+    if pgrep -f "cloudflared access tcp" >/dev/null 2>&1; then
+        pkill -9 -f "cloudflared access tcp" 2>/dev/null
+        sleep 1
+    fi
+    echo "Tunnel lama sudah dimatikan."
+else
+    echo "Tidak ada tunnel lama yang jalan."
+fi
 
 echo "=== Membuka tunnel ke: $HOSTNAME_CLEAN ==="
 nohup cloudflared access tcp --hostname "$HOSTNAME_CLEAN" --url localhost:$LOCAL_PORT > "$LOG_FILE" 2>&1 &
@@ -65,7 +76,6 @@ cat "$LOG_FILE" 2>/dev/null
 # Pastikan tunnel benar-benar listening sebelum SSH dicoba
 for i in $(seq 1 10); do
     if grep -qi "Start Websocket listener\|Listening on\|Connection established" "$LOG_FILE" 2>/dev/null; then
-        echo "Tunnel siap."
         break
     fi
     sleep 1
@@ -82,6 +92,6 @@ echo ""
 echo "=== Tunnel siap ==="
 echo "Buka SESI TERMUX BARU (swipe dari kiri -> New session), lalu jalankan:"
 echo ""
-echo "  ssh -o StrictHostKeyChecking=no $SSH_USER@localhost -p $LOCAL_PORT"
+echo "  ssh $SSH_USER@localhost -p $LOCAL_PORT"
 echo ""
 echo "Tunnel tetap berjalan di background. Jangan tutup sesi ini."
