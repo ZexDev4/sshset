@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # ============================================
 # start-server.sh
@@ -9,6 +8,23 @@
 LOG_FILE="/tmp/cloudflared.log"
 URL_FILE="/tmp/tunnel_url.txt"
 PASSWD_FLAG="/tmp/.passwd_already_set"
+
+# --- Banner ---
+if ! command -v figlet >/dev/null 2>&1; then
+    apt update -y >/dev/null 2>&1
+    apt install -y figlet >/dev/null 2>&1
+fi
+if ! command -v lolcat >/dev/null 2>&1; then
+    apt install -y lolcat >/dev/null 2>&1
+fi
+if command -v figlet >/dev/null 2>&1; then
+    if command -v lolcat >/dev/null 2>&1; then
+        figlet -f standard "SZex" | lolcat -a -d 1
+    else
+        figlet -f standard "SZex"
+    fi
+fi
+echo ""
 
 echo "=== 0. Install dependency yang diperlukan ==="
 
