@@ -64,7 +64,8 @@ cat "$LOG_FILE" 2>/dev/null
 
 # Pastikan tunnel benar-benar listening sebelum SSH dicoba
 for i in $(seq 1 10); do
-    if grep -q "Connection established\|Listening" "$LOG_FILE" 2>/dev/null; then
+    if grep -qi "Start Websocket listener\|Listening on\|Connection established" "$LOG_FILE" 2>/dev/null; then
+        echo "Tunnel siap."
         break
     fi
     sleep 1
@@ -72,5 +73,9 @@ done
 
 echo ""
 echo "=== Connect SSH ==="
+# Bersihkan host key lama untuk localhost:port ini, karena server sering
+# regenerate SSH host key tiap restart (umum di container/Railway)
+ssh-keygen -R "[localhost]:$LOCAL_PORT" >/dev/null 2>&1
+
 echo "Menjalankan: ssh $SSH_USER@localhost -p $LOCAL_PORT"
-ssh "$SSH_USER@localhost" -p $LOCAL_PORT
+ssh -o StrictHostKeyChecking=no "$SSH_USER@localhost" -p $LOCAL_PORT
