@@ -52,11 +52,23 @@ if ! command -v curl >/dev/null 2>&1; then
 fi
 
 # Install bore
-if ! [ -f /usr/local/bin/bore ]; then
+if ! command -v bore >/dev/null 2>&1 && ! [ -f /usr/local/bin/bore ]; then
     echo "Installing bore..."
-    curl -L https://github.com/ekzhang/bore/releases/latest/download/bore-v0.5.0-x86_64-unknown-linux-musl.tar.gz | tar xz
-    mv bore /usr/local/bin/bore
+    ARCH=$(uname -m)
+    if [ "$ARCH" = "x86_64" ]; then
+        BORE_URL="https://github.com/ekzhang/bore/releases/download/v0.5.0/bore-v0.5.0-x86_64-unknown-linux-musl.tar.gz"
+    elif [ "$ARCH" = "aarch64" ]; then
+        BORE_URL="https://github.com/ekzhang/bore/releases/download/v0.5.0/bore-v0.5.0-aarch64-unknown-linux-musl.tar.gz"
+    else
+        echo "Arsitektur tidak dikenali: $ARCH"
+        exit 1
+    fi
+    curl -L "$BORE_URL" -o /tmp/bore.tar.gz
+    tar xzf /tmp/bore.tar.gz -C /tmp/
+    mv /tmp/bore /usr/local/bin/bore
     chmod +x /usr/local/bin/bore
+    rm -f /tmp/bore.tar.gz
+    echo "bore versi: $(bore --version)"
 else
     echo "bore sudah terinstall."
 fi
@@ -141,6 +153,13 @@ Port: $BORE_PORT"
 else
     echo "Gagal mendapatkan port. Cek log: $BORE_LOG"
     tail -n 20 "$BORE_LOG"
+    send_telegram "❌ SSH Tunnel GAGAL
+
+Server: $(hostname)
+Waktu: $(date)
+
+Log:
+$(tail -n 10 $BORE_LOG)"
 fi
 
 echo ""
